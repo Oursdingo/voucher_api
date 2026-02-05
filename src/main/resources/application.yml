@@ -1,0 +1,26 @@
+spring :
+  application:
+    name:  voucher-backend
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/voucher_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:db/seed.sql
+
+app:
+  version: 1.0.0
+  cors:
+    origins: ${CORS_ORIGINS:http://localhost:4200}
