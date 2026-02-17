@@ -69,7 +69,7 @@ class AccountRepositoryTest {
         Account account = Account.builder()
                 .numeroTelephone("70000013")
                 .statutEnum(StatutEnum.ACTIVE)
-                .observation("ok")
+                .observation("Creation de compte ECD")
                 .balance(new BigDecimal("300.00"))
                 .plateform(PlateformEnum.ECD)
                 .build();

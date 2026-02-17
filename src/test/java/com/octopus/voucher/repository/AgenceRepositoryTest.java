@@ -42,7 +42,7 @@ class AgenceRepositoryTest {
     }
 
     @Test
-    void existsByNomAndIdNot() {
+    void existsByNomAndIdNot () {
         Agence agence = Agence.builder()
                 .code("AG-003")
                 .nom("Agence Ouest")
