@@ -1,0 +1,36 @@
+package com.octopus.voucher.dto.request;
+
+import com.octopus.voucher.enumeration.PlateformEnum;
+import com.octopus.voucher.enumeration.StatutEnum;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.util.UUID;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class AccountCreateRequest {
+    @NotBlank
+    @Pattern(regexp = "^[0-9]{8}$")
+    private String numeroTelephone;
+
+    private StatutEnum statutEnum;
+
+    private String observation;
+
+    private BigDecimal balance;
+
+    @NotNull
+    private PlateformEnum plateformEnum;
+
+    @NotNull
+    private UUID userId;
+}

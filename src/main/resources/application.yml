@@ -15,10 +15,10 @@ spring :
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
     defer-datasource-initialization: true
-  sql:
-    init:
-      mode: always
-      data-locations: classpath:db/seed.sql
+#  sql:
+#    init:
+#      mode: always
+#      data-locations: classpath:db/data.sql
 
 app:
   version: 1.0.0
