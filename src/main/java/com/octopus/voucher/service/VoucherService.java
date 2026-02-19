@@ -11,6 +11,7 @@ import com.octopus.voucher.enumeration.EtatEnum;
 import com.octopus.voucher.enumeration.StatutEnum;
 import com.octopus.voucher.error.NotFoundException;
 import com.octopus.voucher.mapper.VoucherMapper;
+import com.octopus.voucher.util.VoucherOperationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,12 +31,14 @@ public class VoucherService {
     private final AccountRepository accountRepository;
     private final VoucherMapper voucherMapper;
     private final SecureRandom secureRandom = new SecureRandom();
-    //TODO 1: refactor
+
     @Transactional
     public VoucherResponse create(VoucherCreateRequest request) {
         Account account = resolveAccount(request);
+        VoucherOperationUtil.applyOperation(account, request.getAmount(), request.getOperationEnum());
+        Account savedAccount = accountRepository.save(account);
         Voucher entity = voucherMapper.toEntity(request);
-        entity.setAccount(account);
+        entity.setAccount(savedAccount);
         entity.setCode(generateCode());
         entity.setEtatEnum(EtatEnum.VALID);
         return voucherMapper.toResponse(voucherRepository.save(entity));
@@ -79,7 +82,7 @@ public class VoucherService {
                     account.setPlateform(request.getPlateformEnum());
                     account.setStatutEnum(StatutEnum.ACTIVE);
                     account.setBalance(BigDecimal.ZERO);
-                    return accountRepository.save(account);
+                    return account;
                 });
     }
 

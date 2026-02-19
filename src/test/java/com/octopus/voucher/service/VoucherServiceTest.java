@@ -9,6 +9,7 @@ import com.octopus.voucher.enumeration.EtatEnum;
 import com.octopus.voucher.enumeration.OperationEnum;
 import com.octopus.voucher.enumeration.PlateformEnum;
 import com.octopus.voucher.enumeration.StatutEnum;
+import com.octopus.voucher.error.BadRequestException;
 import com.octopus.voucher.error.NotFoundException;
 import com.octopus.voucher.mapper.VoucherMapper;
 import com.octopus.voucher.repository.AccountRepository;
@@ -66,7 +67,10 @@ class VoucherServiceTest {
     @Test
     void shouldCreateVoucherWithProvidedAccount() {
         UUID accountId = UUID.randomUUID();
-        Account account = Account.builder().id(accountId).build();
+        Account account = Account.builder()
+                .id(accountId)
+                .balance(BigDecimal.valueOf(50))
+                .build();
         VoucherCreateRequest request = VoucherCreateRequest.builder()
                 .numeroTelephone("12345678")
                 .amount(BigDecimal.valueOf(100))
@@ -80,18 +84,24 @@ class VoucherServiceTest {
         VoucherResponse response = VoucherResponse.builder().build();
 
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+        when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
         when(voucherMapper.toEntity(request)).thenReturn(entity);
         when(voucherRepository.save(any(Voucher.class))).thenAnswer(inv -> inv.getArgument(0));
         when(voucherMapper.toResponse(any(Voucher.class))).thenReturn(response);
 
         VoucherResponse result = voucherService.create(request);
 
+        ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
+        verify(accountRepository).save(accountCaptor.capture());
+        Account savedAccount = accountCaptor.getValue();
+
         ArgumentCaptor<Voucher> captor = ArgumentCaptor.forClass(Voucher.class);
         verify(voucherRepository).save(captor.capture());
         Voucher saved = captor.getValue();
 
         assertThat(result).isEqualTo(response);
-        assertThat(saved.getAccount()).isEqualTo(account);
+        assertThat(savedAccount.getBalance()).isEqualByComparingTo(BigDecimal.valueOf(150));
+        assertThat(saved.getAccount()).isEqualTo(savedAccount);
         assertThat(saved.getEtatEnum()).isEqualTo(EtatEnum.VALID);
         assertThat(saved.getCode()).matches("[A-Z0-9]{10}");
     }
@@ -134,13 +144,16 @@ class VoucherServiceTest {
         assertThat(savedAccount.getNumeroTelephone()).isEqualTo("12345678");
         assertThat(savedAccount.getPlateform()).isEqualTo(PlateformEnum.PMU);
         assertThat(savedAccount.getStatutEnum()).isEqualTo(StatutEnum.ACTIVE);
-        assertThat(savedAccount.getBalance()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(savedAccount.getBalance()).isEqualByComparingTo(BigDecimal.valueOf(150));
         assertThat(savedVoucher.getAccount()).isEqualTo(savedAccount);
     }
 
     @Test
     void shouldUseExistingAccountByPhoneAndPlateform() {
-        Account existing = Account.builder().id(UUID.randomUUID()).build();
+        Account existing = Account.builder()
+                .id(UUID.randomUUID())
+                .balance(BigDecimal.valueOf(200))
+                .build();
         VoucherCreateRequest request = VoucherCreateRequest.builder()
                 .numeroTelephone("12345678")
                 .amount(BigDecimal.valueOf(200))
@@ -154,19 +167,88 @@ class VoucherServiceTest {
 
         when(accountRepository.findByNumeroTelephoneAndPlateform("12345678", PlateformEnum.LOTO))
                 .thenReturn(Optional.of(existing));
+        when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
         when(voucherMapper.toEntity(request)).thenReturn(entity);
         when(voucherRepository.save(any(Voucher.class))).thenAnswer(inv -> inv.getArgument(0));
         when(voucherMapper.toResponse(any(Voucher.class))).thenReturn(response);
 
         VoucherResponse result = voucherService.create(request);
 
+        ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
+        verify(accountRepository).save(accountCaptor.capture());
+        Account savedAccount = accountCaptor.getValue();
+
         ArgumentCaptor<Voucher> voucherCaptor = ArgumentCaptor.forClass(Voucher.class);
         verify(voucherRepository).save(voucherCaptor.capture());
         Voucher savedVoucher = voucherCaptor.getValue();
 
         assertThat(result).isEqualTo(response);
-        assertThat(savedVoucher.getAccount()).isEqualTo(existing);
+        assertThat(savedAccount.getBalance()).isEqualByComparingTo(BigDecimal.valueOf(400));
+        assertThat(savedVoucher.getAccount()).isEqualTo(savedAccount);
+    }
+
+    @Test
+    void shouldApplyRetraitWhenBalanceSufficient() {
+        Account existing = Account.builder()
+                .id(UUID.randomUUID())
+                .balance(BigDecimal.valueOf(300))
+                .build();
+        VoucherCreateRequest request = VoucherCreateRequest.builder()
+                .numeroTelephone("12345678")
+                .amount(BigDecimal.valueOf(100))
+                .plateformEnum(PlateformEnum.ECD)
+                .operationEnum(OperationEnum.RETRAIT)
+                .expirationDate(LocalDateTime.now().plusDays(1))
+                .build();
+
+        Voucher entity = new Voucher();
+        VoucherResponse response = VoucherResponse.builder().build();
+
+        when(accountRepository.findByNumeroTelephoneAndPlateform("12345678", PlateformEnum.ECD))
+                .thenReturn(Optional.of(existing));
+        when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(voucherMapper.toEntity(request)).thenReturn(entity);
+        when(voucherRepository.save(any(Voucher.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(voucherMapper.toResponse(any(Voucher.class))).thenReturn(response);
+
+        VoucherResponse result = voucherService.create(request);
+
+        ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
+        verify(accountRepository).save(accountCaptor.capture());
+        Account savedAccount = accountCaptor.getValue();
+
+        ArgumentCaptor<Voucher> voucherCaptor = ArgumentCaptor.forClass(Voucher.class);
+        verify(voucherRepository).save(voucherCaptor.capture());
+        Voucher savedVoucher = voucherCaptor.getValue();
+
+        assertThat(result).isEqualTo(response);
+        assertThat(savedAccount.getBalance()).isEqualByComparingTo(BigDecimal.valueOf(200));
+        assertThat(savedVoucher.getAccount()).isEqualTo(savedAccount);
+    }
+
+    @Test
+    void shouldRejectRetraitWhenBalanceInsufficient() {
+        Account existing = Account.builder()
+                .id(UUID.randomUUID())
+                .balance(BigDecimal.valueOf(50))
+                .build();
+        VoucherCreateRequest request = VoucherCreateRequest.builder()
+                .numeroTelephone("12345678")
+                .amount(BigDecimal.valueOf(100))
+                .plateformEnum(PlateformEnum.ECD)
+                .operationEnum(OperationEnum.RETRAIT)
+                .expirationDate(LocalDateTime.now().plusDays(1))
+                .build();
+
+        when(accountRepository.findByNumeroTelephoneAndPlateform("12345678", PlateformEnum.ECD))
+                .thenReturn(Optional.of(existing));
+
+        assertThatThrownBy(() -> voucherService.create(request))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("Insufficient balance");
+
         verify(accountRepository, never()).save(any(Account.class));
+        verify(voucherRepository, never()).save(any(Voucher.class));
     }
 
     @Test
