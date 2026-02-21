@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +23,7 @@ class PointVenteRepositoryTest {
                 .code("PV-001")
                 .name("Point Vente A")
                 .salesPointType(TypePdvEnum.ECD)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         pointVenteRepository.save(pv);
@@ -36,6 +38,7 @@ class PointVenteRepositoryTest {
                 .code("PV-002")
                 .name("Point Vente B")
                 .salesPointType(TypePdvEnum.PMU)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         pointVenteRepository.save(pv);
@@ -50,6 +53,7 @@ class PointVenteRepositoryTest {
                 .code("PV-003")
                 .name("Point Vente C")
                 .salesPointType(TypePdvEnum.LOTO)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         PointVente saved = pointVenteRepository.save(pv);
@@ -64,6 +68,7 @@ class PointVenteRepositoryTest {
                 .code("PV-004")
                 .name("Point Vente D")
                 .salesPointType(TypePdvEnum.PARI_SPORTIF)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         PointVente saved = pointVenteRepository.save(pv);
@@ -78,12 +83,14 @@ class PointVenteRepositoryTest {
                 .code("PV-005")
                 .name("Point Vente E")
                 .salesPointType(TypePdvEnum.ECD)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         PointVente pv2 = PointVente.builder()
                 .code("PV-006")
                 .name("Point Vente F")
                 .salesPointType(TypePdvEnum.LOTO)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         pointVenteRepository.saveAll(List.of(pv1, pv2));

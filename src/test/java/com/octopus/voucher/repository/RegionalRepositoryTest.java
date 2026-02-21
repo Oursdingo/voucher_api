@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,11 +21,13 @@ class RegionalRepositoryTest {
         Regional r1 = Regional.builder()
                 .nom("Regional Centre")
                 .dregionalEnum(DregionalEnum.CENTRE)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         Regional r2 = Regional.builder()
                 .nom("Regional Est")
                 .dregionalEnum(DregionalEnum.EST)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         regionalRepository.saveAll(List.of(r1, r2));

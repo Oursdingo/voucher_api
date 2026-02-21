@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +27,7 @@ class AccountRepositoryTest {
                 .observation("Creation de compte ECD")
                 .balance(new BigDecimal("100.00"))
                 .plateform(PlateformEnum.ECD)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         Account account2 = Account.builder()
@@ -34,6 +36,7 @@ class AccountRepositoryTest {
                 .observation("Creation de compte PMU ")
                 .balance(new BigDecimal("200.00"))
                 .plateform(PlateformEnum.PMU)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         accountRepository.saveAll(List.of(account1, account2));
@@ -52,6 +55,7 @@ class AccountRepositoryTest {
                 .statutEnum(StatutEnum.ACTIVE)
                 .balance(new BigDecimal("150.00"))
                 .plateform(PlateformEnum.LOTO)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         accountRepository.save(account);

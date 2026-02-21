@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ class AgenceRepositoryTest {
         Agence agence = Agence.builder()
                 .code("AG-001")
                 .nom("Agence Centre")
+                .createdAt(LocalDateTime.now())
                 .build();
 
         agenceRepository.save(agence);
@@ -33,6 +35,7 @@ class AgenceRepositoryTest {
         Agence agence = Agence.builder()
                 .code("AG-002")
                 .nom("Agence Est")
+                .createdAt(LocalDateTime.now())
                 .build();
 
         agenceRepository.save(agence);
@@ -46,6 +49,7 @@ class AgenceRepositoryTest {
         Agence agence = Agence.builder()
                 .code("AG-003")
                 .nom("Agence Ouest")
+                .createdAt(LocalDateTime.now())
                 .build();
 
         Agence saved = agenceRepository.save(agence);
@@ -59,6 +63,7 @@ class AgenceRepositoryTest {
         Agence agence = Agence.builder()
                 .code("AG-004")
                 .nom("Agence Sud")
+                .createdAt(LocalDateTime.now())
                 .build();
 
         Agence saved = agenceRepository.save(agence);
@@ -72,11 +77,13 @@ class AgenceRepositoryTest {
         Agence agence1 = Agence.builder()
                 .code("AG-005")
                 .nom("Agence Nord")
+                .createdAt(LocalDateTime.now())
                 .build();
 
         Agence agence2 = Agence.builder()
                 .code("AG-006")
                 .nom("Agence Centre 2")
+                .createdAt(LocalDateTime.now())
                 .build();
 
         agenceRepository.saveAll(List.of(agence1, agence2));

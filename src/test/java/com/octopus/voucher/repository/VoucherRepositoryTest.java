@@ -31,6 +31,7 @@ class VoucherRepositoryTest {
                 .transactionId("TRX-001")
                 .validationDate(LocalDateTime.of(2026, 1, 1, 8, 0))
                 .expirationDate(LocalDateTime.of(2026, 2, 1, 8, 0))
+                .createdAt(LocalDateTime.now())
                 .build();
 
         Voucher v2 = Voucher.builder()
@@ -43,6 +44,7 @@ class VoucherRepositoryTest {
                 .transactionId("TRX-002")
                 .validationDate(LocalDateTime.of(2026, 1, 2, 8, 0))
                 .expirationDate(LocalDateTime.of(2026, 2, 2, 8, 0))
+                .createdAt(LocalDateTime.now())
                 .build();
 
         voucherRepository.saveAll(List.of(v1, v2));

@@ -30,6 +30,7 @@ class AuditRepositoryTest {
                 .amount(new BigDecimal("500.00"))
                 .transactionId("TX-001")
                 .eventDate(LocalDateTime.of(2026, 1, 1, 10, 0))
+                .createdAt(LocalDateTime.now())
                 .build();
 
         Audit audit2 = Audit.builder()
@@ -41,6 +42,7 @@ class AuditRepositoryTest {
                 .amount(new BigDecimal("250.00"))
                 .transactionId("TX-002")
                 .eventDate(LocalDateTime.of(2026, 1, 2, 11, 0))
+                .createdAt(LocalDateTime.now())
                 .build();
 
         auditRepository.saveAll(List.of(audit1, audit2));

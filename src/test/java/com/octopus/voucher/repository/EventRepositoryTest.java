@@ -23,6 +23,7 @@ class EventRepositoryTest {
                 .entite("USER")
                 .date(LocalDateTime.of(2026, 1, 1, 9, 0))
                 .adresse("127.0.0.1")
+                .createdAt(LocalDateTime.now())
                 .build();
 
         Event event2 = Event.builder()
@@ -30,6 +31,7 @@ class EventRepositoryTest {
                 .entite("USER")
                 .date(LocalDateTime.of(2026, 1, 1, 10, 0))
                 .adresse("127.0.0.2")
+                .createdAt(LocalDateTime.now())
                 .build();
 
         eventRepository.saveAll(List.of(event1, event2));
